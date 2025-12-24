@@ -7,7 +7,7 @@
 ### 1. 环境配置（一键完成）
 
 ```bash
-./setup_environment.sh
+./scripts/setup_environment.sh
 ```
 
 该脚本会自动完成：
@@ -19,7 +19,7 @@
 ### 2. 下载模型
 
 ```bash
-./download_model.sh
+./scripts/download_model.sh
 ```
 
 该脚本会：
@@ -31,7 +31,7 @@
 ### 3. 启动推理服务
 
 ```bash
-./start_inference.sh
+./scripts/start_inference.sh
 ```
 
 该脚本会：
@@ -43,13 +43,13 @@
 
 ```bash
 # 方式1: 直接推理模式
-python test_inference.py --mode direct
+python scripts/test_inference.py --mode direct
 
 # 方式2: API模式（需先启动服务）
-python test_inference.py --mode api
+python scripts/test_inference.py --mode api
 
 # 自定义prompt
-python test_inference.py --mode direct --custom-prompt "你的问题"
+python scripts/test_inference.py --mode direct --custom-prompt "你的问题"
 ```
 
 ## 文件说明
@@ -57,13 +57,11 @@ python test_inference.py --mode direct --custom-prompt "你的问题"
 ### 文档
 - **H20_VLLM_DeepSeek_V3_安装指南.md** - 详细的安装和使用文档
 
-### 脚本工具
+### 脚本工具 (scripts/ 目录)
 - **setup_environment.sh** - 环境一键配置脚本
 - **download_model.sh** - 模型下载脚本
 - **start_inference.sh** - 推理服务启动脚本
 - **monitor_gpu.sh** - GPU实时监控工具
-
-### Python工具
 - **test_inference.py** - 推理功能测试
 - **benchmark.py** - 性能基准测试
 
@@ -73,7 +71,7 @@ python test_inference.py --mode direct --custom-prompt "你的问题"
 
 ```bash
 # 实时监控
-./monitor_gpu.sh
+./scripts/monitor_gpu.sh
 
 # 或使用nvidia-smi
 watch -n 1 nvidia-smi
@@ -83,10 +81,10 @@ watch -n 1 nvidia-smi
 
 ```bash
 # 运行基准测试
-python benchmark.py --model-path /data/models/deepseek-v3
+python scripts/benchmark.py --model-path /data/models/deepseek-v3
 
 # 自定义测试参数
-python benchmark.py \
+python scripts/benchmark.py \
     --num-prompts 100 \
     --prompt-length 128 \
     --output-length 256 \

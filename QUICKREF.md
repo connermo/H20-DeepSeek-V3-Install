@@ -4,16 +4,16 @@
 
 ```bash
 # 1. 环境配置
-./setup_environment.sh
+./scripts/setup_environment.sh
 
 # 2. 下载模型
-./download_model.sh
+./scripts/download_model.sh
 
 # 3. 启动服务
-./start_inference.sh
+./scripts/start_inference.sh
 
 # 4. 测试（新终端）
-python test_inference.py --mode api
+python scripts/test_inference.py --mode api
 ```
 
 ## 常用命令速查
@@ -22,13 +22,13 @@ python test_inference.py --mode api
 
 ```bash
 # 启动服务
-./start_inference.sh
+./scripts/start_inference.sh
 
 # 查看日志
 tail -f vllm_server.log
 
 # 监控GPU
-./monitor_gpu.sh
+./scripts/monitor_gpu.sh
 
 # 停止服务
 # Ctrl+C 或 kill $(lsof -t -i:8000)
@@ -167,7 +167,7 @@ export VLLM_ATTENTION_BACKEND=FLASHINFER
 ### 运行基准测试
 
 ```bash
-python benchmark.py --model-path /data/models/deepseek-v3
+python scripts/benchmark.py --model-path /data/models/deepseek-v3
 ```
 
 ## 环境变量速查
@@ -192,12 +192,13 @@ export NCCL_IB_DISABLE=0
 ├── README.md                          # 完整文档
 ├── H20_VLLM_DeepSeek_V3_安装指南.md  # 详细指南
 ├── QUICKREF.md                        # 本文件
-├── setup_environment.sh               # 环境配置
-├── download_model.sh                  # 模型下载
-├── start_inference.sh                 # 启动服务
-├── monitor_gpu.sh                     # GPU监控
-├── test_inference.py                  # 推理测试
-├── benchmark.py                       # 性能测试
+├── scripts/                          # 脚本目录
+│   ├── setup_environment.sh          # 环境配置
+│   ├── download_model.sh             # 模型下载
+│   ├── start_inference.sh            # 启动服务
+│   ├── monitor_gpu.sh                # GPU监控
+│   ├── test_inference.py             # 推理测试
+│   └── benchmark.py                  # 性能测试
 ├── vllm-env/                         # 虚拟环境
 ├── vllm_env.sh                       # 环境变量
 └── vllm_server.log                   # 服务日志
@@ -216,7 +217,7 @@ nvidia-smi
 watch -n 1 nvidia-smi
 
 # 详细监控
-./monitor_gpu.sh
+./scripts/monitor_gpu.sh
 
 # 进程监控
 htop
