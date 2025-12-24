@@ -22,11 +22,11 @@
 - **存储**: 建议SSD，至少500GB可用空间（用于模型存储）
 
 ### 软件要求
-- **操作系统**: Ubuntu 20.04/22.04 或 CentOS 7/8
-- **CUDA**: 13.0 (推荐稳定版) 或 12.x
-- **Python**: 3.9-3.12
-- **驱动**: NVIDIA Driver 580.65.06+ 
-- **vLLM**: 0.13.0+ (最新版本)
+- **操作系统**: Ubuntu 22.04 LTS
+- **CUDA**: 13.0 (推荐稳定版)
+- **Python**: 3.10-3.13 (vLLM 0.13.0要求)
+- **NVIDIA驱动**: 580.65.06+
+- **vLLM**: 0.13.0+
 
 ---
 
@@ -50,12 +50,15 @@ nvidia-smi --query-gpu=driver_version --format=csv,noheader
 ### 2. 创建Python虚拟环境
 
 ```bash
-# 安装Python 3.10（推荐版本）
-sudo apt update
-sudo apt install python3.10 python3.10-venv python3.10-dev -y
+# 确认Python版本 (Ubuntu 22.04默认是3.10)
+python3 --version  # 应该显示3.10.x
 
-# 创建虚拟环境
-python3.10 -m venv vllm-env
+# 如需安装其他版本 (可选: 3.10, 3.11, 3.12, 3.13)
+# sudo apt update
+# sudo apt install python3.11 python3.11-venv python3.11-dev -y
+
+# 创建虚拟环境 (使用系统默认的Python 3.10)
+python3 -m venv vllm-env
 
 # 激活虚拟环境
 source vllm-env/bin/activate
