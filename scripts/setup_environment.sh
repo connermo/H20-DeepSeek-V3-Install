@@ -39,17 +39,31 @@ fi
 
 # 3. 检查Python
 echo -e "\n${GREEN}[3/7] 检查Python版本...${NC}"
-if command -v python3.10 &> /dev/null; then
+# vLLM 0.13.0要求Python 3.10-3.13
+if command -v python3.13 &> /dev/null; then
+    PYTHON_CMD=python3.13
+elif command -v python3.12 &> /dev/null; then
+    PYTHON_CMD=python3.12
+elif command -v python3.11 &> /dev/null; then
+    PYTHON_CMD=python3.11
+elif command -v python3.10 &> /dev/null; then
     PYTHON_CMD=python3.10
 elif command -v python3 &> /dev/null; then
     PYTHON_CMD=python3
 else
-    echo -e "${RED}错误: 未找到Python 3，请先安装${NC}"
+    echo -e "${RED}错误: 未找到Python 3，请先安装Python 3.10-3.13${NC}"
     exit 1
 fi
 
 PYTHON_VERSION=$($PYTHON_CMD --version)
 echo -e "${GREEN}使用 ${PYTHON_VERSION}${NC}"
+
+# 验证Python版本是否符合vLLM 0.13.0要求 (3.10-3.13)
+PYTHON_MINOR=$($PYTHON_CMD -c "import sys; print(sys.version_info.minor)")
+if [ "$PYTHON_MINOR" -lt 10 ] || [ "$PYTHON_MINOR" -gt 13 ]; then
+    echo -e "${RED}错误: vLLM 0.13.0要求Python 3.10-3.13，当前版本不支持${NC}"
+    exit 1
+fi
 
 # 4. 创建虚拟环境
 echo -e "\n${GREEN}[4/7] 创建Python虚拟环境...${NC}"
@@ -68,15 +82,15 @@ echo -e "\n${GREEN}[5/7] 升级pip...${NC}"
 pip install --upgrade pip
 
 # 6. 安装PyTorch
-echo -e "\n${GREEN}[6/7] 安装最新版PyTorch (兼容CUDA 13.0/12.x)...${NC}"
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+echo -e "\n${GREEN}[6/7] 安装PyTorch 2.9.0 (CUDA 13.0)...${NC}"
+pip install torch==2.9.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130
 
 # 验证PyTorch
 python -c "import torch; print(f'PyTorch版本: {torch.__version__}'); print(f'CUDA可用: {torch.cuda.is_available()}'); print(f'GPU数量: {torch.cuda.device_count()}')"
 
 # 7. 安装vLLM
-echo -e "\n${GREEN}[7/7] 安装最新版vLLM (0.13.0+)...${NC}"
-pip install --upgrade vllm
+echo -e "\n${GREEN}[7/7] 安装vLLM 0.13.0+...${NC}"
+pip install "vllm>=0.13.0"
 
 # 验证vLLM
 python -c "import vllm; print(f'vLLM版本: {vllm.__version__}')"
