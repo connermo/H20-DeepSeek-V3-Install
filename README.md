@@ -211,9 +211,10 @@ journalctl -u vllm-deepseek -f
 - **内存**: 512GB+
 - **存储**: 500GB+ SSD
 - **操作系统**: Ubuntu 22.04 LTS
-- **CUDA**: 13.0 (推荐稳定版)
-- **NVIDIA驱动**: 580.65.06+
 - **Python**: 3.10-3.13 (vLLM 0.13.0要求)
+- **CUDA**: 13.0
+- **NVIDIA驱动**: 580.65.06+
+- **PyTorch**: 2.9.0+cu130 (CUDA 13.0版本)
 - **vLLM**: 0.13.0+
 
 ## 许可证

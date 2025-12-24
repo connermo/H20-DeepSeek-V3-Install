@@ -78,11 +78,11 @@ print(response.choices[0].message.content)
 ## 版本信息 (2025年12月)
 
 - **操作系统**: Ubuntu 22.04 LTS
-- **Python**: 3.10-3.13 (vLLM 0.13.0要求)
-- **CUDA**: 13.0 (推荐稳定版)
+- **Python**: 3.10-3.13
+- **CUDA**: 13.0
 - **NVIDIA驱动**: 580.65.06+
+- **PyTorch**: 2.9.0+cu130
 - **vLLM**: 0.13.0+
-- **PyTorch**: 2.x (latest)
 
 ## 参数速查表
 

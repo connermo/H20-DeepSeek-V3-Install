@@ -23,9 +23,10 @@
 
 ### 软件要求
 - **操作系统**: Ubuntu 22.04 LTS
-- **CUDA**: 13.0 (推荐稳定版)
-- **Python**: 3.10-3.13 (vLLM 0.13.0要求)
+- **Python**: 3.10-3.13
+- **CUDA**: 13.0
 - **NVIDIA驱动**: 580.65.06+
+- **PyTorch**: 2.9.0+cu130
 - **vLLM**: 0.13.0+
 
 ---
@@ -87,11 +88,11 @@ sudo apt install -y cuda-toolkit-12-1
 # 激活虚拟环境
 source vllm-env/bin/activate
 
-# 安装最新版PyTorch（兼容CUDA 13.0/12.x）
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+# 安装PyTorch 2.9.0 (CUDA 13.0版本)
+pip install torch==2.9.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130
 
-# 安装最新版vLLM (0.13.0+)
-pip install --upgrade vllm
+# 安装vLLM 0.13.0+
+pip install vllm>=0.13.0
 
 # 验证安装
 python -c "import vllm; print(f'vLLM版本: {vllm.__version__}')"
