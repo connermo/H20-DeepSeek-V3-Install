@@ -207,13 +207,19 @@ journalctl -u vllm-deepseek -f
 
 ## 系统要求
 
+### 硬件
 - **GPU**: NVIDIA H20 x 8 (每卡141GB显存)
 - **内存**: 512GB+
 - **存储**: 500GB+ SSD
+
+### 系统软件
 - **操作系统**: Ubuntu 22.04 LTS
-- **Python**: 3.10-3.13 (vLLM 0.13.0要求)
-- **CUDA**: 13.0
 - **NVIDIA驱动**: 580.65.06+
+- **nvidia-fabricmanager**: 580.65.06+ (与驱动版本匹配,**必需**)
+- **CUDA**: 13.0
+
+### Python环境
+- **Python**: 3.10-3.13 (vLLM 0.13.0要求)
 - **PyTorch**: 2.9.0+cu130 (CUDA 13.0版本)
 - **vLLM**: 0.13.0+
 

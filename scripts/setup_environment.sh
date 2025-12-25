@@ -18,19 +18,48 @@ if [ "$EUID" -ne 0 ]; then
     echo -e "${YELLOW}警告: 某些操作可能需要sudo权限${NC}"
 fi
 
-# 1. 检查GPU
-echo -e "\n${GREEN}[1/7] 检查GPU状态...${NC}"
+# 1. 检查GPU和驱动
+echo -e "\n${GREEN}[1/8] 检查GPU状态...${NC}"
 if command -v nvidia-smi &> /dev/null; then
     nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
     GPU_COUNT=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
     echo -e "${GREEN}检测到 ${GPU_COUNT} 张GPU${NC}"
+
+    # 检查驱动版本
+    DRIVER_VERSION=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -1)
+    echo -e "${GREEN}驱动版本: ${DRIVER_VERSION}${NC}"
 else
     echo -e "${RED}错误: 未检测到nvidia-smi，请先安装NVIDIA驱动${NC}"
     exit 1
 fi
 
+# 1.5 检查nvidia-fabricmanager (多GPU系统必需)
+echo -e "\n${GREEN}[1.5/8] 检查nvidia-fabricmanager状态...${NC}"
+if [ "$GPU_COUNT" -gt 1 ]; then
+    if systemctl is-active --quiet nvidia-fabricmanager; then
+        echo -e "${GREEN}✓ nvidia-fabricmanager 服务运行中${NC}"
+        # 检查NVLink状态
+        if nvidia-smi nvlink --status &> /dev/null; then
+            echo -e "${GREEN}✓ NVLink 可用${NC}"
+        else
+            echo -e "${YELLOW}警告: NVLink状态检查失败${NC}"
+        fi
+    else
+        echo -e "${YELLOW}警告: nvidia-fabricmanager 未运行${NC}"
+        echo -e "${YELLOW}对于多GPU系统，强烈建议安装并启动 nvidia-fabricmanager${NC}"
+        echo -e "${YELLOW}安装命令: sudo apt install nvidia-fabricmanager-<driver-version>${NC}"
+        echo -e "${YELLOW}例如: sudo apt install nvidia-fabricmanager-580${NC}"
+        read -p "是否继续? [y/N]: " CONTINUE
+        if [ "$CONTINUE" != "y" ] && [ "$CONTINUE" != "Y" ]; then
+            exit 1
+        fi
+    fi
+else
+    echo -e "${GREEN}单GPU系统，跳过fabricmanager检查${NC}"
+fi
+
 # 2. 检查CUDA
-echo -e "\n${GREEN}[2/7] 检查CUDA版本...${NC}"
+echo -e "\n${GREEN}[2/8] 检查CUDA版本...${NC}"
 if command -v nvcc &> /dev/null; then
     nvcc --version | grep "release"
 else
@@ -38,7 +67,7 @@ else
 fi
 
 # 3. 检查Python
-echo -e "\n${GREEN}[3/7] 检查Python版本...${NC}"
+echo -e "\n${GREEN}[3/8] 检查Python版本...${NC}"
 # vLLM 0.13.0要求Python 3.10-3.13
 if command -v python3.13 &> /dev/null; then
     PYTHON_CMD=python3.13
@@ -66,7 +95,7 @@ if [ "$PYTHON_MINOR" -lt 10 ] || [ "$PYTHON_MINOR" -gt 13 ]; then
 fi
 
 # 4. 创建虚拟环境
-echo -e "\n${GREEN}[4/7] 创建Python虚拟环境...${NC}"
+echo -e "\n${GREEN}[4/8] 创建Python虚拟环境...${NC}"
 if [ -d "vllm-env" ]; then
     echo -e "${YELLOW}虚拟环境已存在，跳过创建${NC}"
 else
@@ -78,18 +107,18 @@ fi
 source vllm-env/bin/activate
 
 # 5. 升级pip
-echo -e "\n${GREEN}[5/7] 升级pip...${NC}"
+echo -e "\n${GREEN}[5/8] 升级pip...${NC}"
 pip install --upgrade pip
 
 # 6. 安装PyTorch
-echo -e "\n${GREEN}[6/7] 安装PyTorch 2.9.0 (CUDA 13.0)...${NC}"
+echo -e "\n${GREEN}[6/8] 安装PyTorch 2.9.0 (CUDA 13.0)...${NC}"
 pip install torch==2.9.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130
 
 # 验证PyTorch
 python -c "import torch; print(f'PyTorch版本: {torch.__version__}'); print(f'CUDA可用: {torch.cuda.is_available()}'); print(f'GPU数量: {torch.cuda.device_count()}')"
 
 # 7. 安装vLLM
-echo -e "\n${GREEN}[7/7] 安装vLLM 0.13.0+...${NC}"
+echo -e "\n${GREEN}[7/8] 安装vLLM 0.13.0+...${NC}"
 pip install "vllm>=0.13.0"
 
 # 验证vLLM
@@ -100,8 +129,8 @@ echo -e "  - 1.7x性能提升"
 echo -e "  - 优化的执行循环和零开销prefix caching"
 echo -e "  - 增强的多模态支持"
 
-# 创建环境变量文件
-echo -e "\n${GREEN}创建环境变量配置文件...${NC}"
+# 8. 创建环境变量文件
+echo -e "\n${GREEN}[8/8] 创建环境变量配置文件...${NC}"
 cat > vllm_env.sh << 'EOF'
 # CUDA配置
 export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7

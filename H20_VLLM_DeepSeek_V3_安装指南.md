@@ -23,9 +23,10 @@
 
 ### 软件要求
 - **操作系统**: Ubuntu 22.04 LTS
-- **Python**: 3.10-3.13
-- **CUDA**: 13.0
 - **NVIDIA驱动**: 580.65.06+
+- **nvidia-fabricmanager**: 580.65.06+ (与驱动版本匹配,**多GPU系统必需**)
+- **CUDA**: 13.0
+- **Python**: 3.10-3.13
 - **PyTorch**: 2.9.0+cu130
 - **vLLM**: 0.13.0+
 
@@ -33,22 +34,56 @@
 
 ## 环境准备
 
-### 1. 检查GPU状态
+### 1. 检查GPU和驱动状态
 
 ```bash
 # 检查GPU是否被正确识别
 nvidia-smi
 
+# 查看驱动版本
+nvidia-smi --query-gpu=driver_version --format=csv,noheader
+
 # 查看CUDA版本
 nvcc --version
 
-# 检查驱动版本
-nvidia-smi --query-gpu=driver_version --format=csv,noheader
+# 检查NVLink拓扑 (重要!)
+nvidia-smi nvlink --status
+
+# 检查nvidia-fabricmanager状态
+sudo systemctl status nvidia-fabricmanager
 ```
 
 预期输出应显示8张H20 GPU，每张显存约141GB。
 
-### 2. 创建Python虚拟环境
+### 2. 安装nvidia-fabricmanager (如未安装)
+
+**重要**: 对于8卡H20系统,nvidia-fabricmanager是**必需的**,用于管理NVLink和优化GPU间通信。
+
+```bash
+# 查看驱动版本
+DRIVER_VERSION=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -1)
+echo "驱动版本: $DRIVER_VERSION"
+
+# 安装与驱动版本匹配的fabricmanager (以580为例)
+sudo apt-get update
+sudo apt-get install -y nvidia-fabricmanager-580
+
+# 启动并启用fabricmanager服务
+sudo systemctl start nvidia-fabricmanager
+sudo systemctl enable nvidia-fabricmanager
+
+# 验证服务状态
+sudo systemctl status nvidia-fabricmanager
+
+# 检查fabricmanager日志
+sudo journalctl -u nvidia-fabricmanager -n 50
+```
+
+**注意**: fabricmanager版本号必须与驱动版本匹配:
+- 驱动 580.x.x → nvidia-fabricmanager-580
+- 驱动 535.x.x → nvidia-fabricmanager-535
+
+### 3. 创建Python虚拟环境
 
 ```bash
 # 确认Python版本 (Ubuntu 22.04默认是3.10)
@@ -68,7 +103,7 @@ source vllm-env/bin/activate
 pip install --upgrade pip
 ```
 
-### 3. 安装基础依赖
+### 4. 安装基础依赖
 
 ```bash
 # 安装必要的系统包
